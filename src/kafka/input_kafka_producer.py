@@ -5,7 +5,6 @@ import logging
 from json import dumps
 
 from kafka import KafkaProducer
-from orca.debug import println
 
 interval_time = 5  # min
 
@@ -15,8 +14,7 @@ index_api_keys = 0
 
 symbol_stocks = ['IBM', 'AAPL', 'AMZN', 'TSLA', 'BABA']
 
-producer = KafkaProducer(bootstrap_servers=['10.29.227.211:9092'],
-                         value_serializer=lambda x: dumps(x).encode('utf-8'))
+producer = KafkaProducer(bootstrap_servers=['localhost:9092'], value_serializer=lambda x: dumps(x).encode('utf-8'))
 
 while True:
     # Request for stocks values
@@ -31,7 +29,6 @@ while True:
             logging.info(stock + ' stocks successfully sent to Kafka Broker')
         else:
             logging.error('Error : the api key is over used')
-        print(index_api_keys)
         index_api_keys = (index_api_keys + 1) % len(api_keys)
     # Wait every 5 min
     time.sleep(interval_time * 60)

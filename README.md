@@ -13,13 +13,37 @@ An in-depth paragraph about your project and overview of use.
 
 ### Dependencies
 
-* Describe any prerequisites, libraries, OS version, etc., needed before installing program.
-* ex. Windows 10
+* Python
+* Docker & docker-compose
 
 ### Installing
 
-* How/where to download your program
-* Any modifications needed to be made to files/folders
+First, please install the python packages :
+
+```bash
+$ pip install -r requirements.txt
+```
+
+Please install the docker containers by executing these commands :
+
+```bash
+$ cd docker
+$ sudo docker-compose up -d
+```
+
+You can check the status of the containers :
+
+```bash
+$ sudo docker ps
+```
+
+More info :
+
+You can configure the number of spark workers adding parameter :
+
+```bash
+$ docker-compose up --scale spark-worker=3
+```
 
 ### Executing program
 
