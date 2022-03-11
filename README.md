@@ -42,7 +42,13 @@ More info :
 You can configure the number of spark workers adding parameter :
 
 ```bash
-$ docker-compose up --scale spark-worker=3
+$ sudo docker-compose up --scale spark-worker=3 -d
+```
+
+You can also verify that cassandra is running :
+
+```bash
+$ cqlsh localhost -u cassandra -p cassandra
 ```
 
 ### Executing program
