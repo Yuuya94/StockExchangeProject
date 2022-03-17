@@ -53,10 +53,20 @@ $ cqlsh localhost -u cassandra -p cassandra
 
 ### Executing program
 
+spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.1 --master spark://127.0.0.1:7077 kafka_to_spark_streaming.py
+
 * How to run the program
 * Step-by-step bullets
 ```
 code blocks for commands
+```
+
+### Check logs
+
+Check container logs :
+
+```bash
+sudo docker logs [container_name]
 ```
 
 ## Help
