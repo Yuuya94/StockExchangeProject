@@ -1,3 +1,7 @@
 kafka-python~=2.0.2
 pyspark~=3.2.1
 cqlsh~=6.0.0
+cassandra-driver~=3.25.0
+cassandra-driver[graph]~=3.25.0
+lz4~=4.0.0
+futures~=3.0.5

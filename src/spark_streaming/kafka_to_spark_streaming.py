@@ -61,7 +61,7 @@ sdUSDtoRUB = spark \
     .readStream \
     .format("kafka") \
     .option("kafka.bootstrap.servers", "localhost:9092") \
-    .option("subscribe", "USD_and_RUB") \
+    .option("subscribe", "USD_and_RUB,USD_and_EUR") \
     .option("startingOffsets", "earliest") \
     .load() \
     .selectExpr("CAST(value AS STRING)")
@@ -70,7 +70,7 @@ sdIBM = spark \
     .readStream \
     .format("kafka") \
     .option("kafka.bootstrap.servers", "localhost:9092") \
-    .option("subscribe", "IBM") \
+    .option("subscribe", "IBM,AAPL,AMZN,TSLA,BABA") \
     .option("startingOffsets", "earliest") \
     .load() \
     .selectExpr("CAST(topic AS STRING)", "CAST(value AS STRING)")
@@ -79,42 +79,6 @@ sdUSDtoRUB = parse_currency_data_from_kafka_message(sdUSDtoRUB, CurrencyRateSche
 
 sdIBM = parse_stocks_data_from_kafka_message(sdIBM, StockSchema)
 
-query_currency = sdUSDtoRUB.writeStream.outputMode("append").format("console").start().awaitTermination()
+# query_currency = sdUSDtoRUB.writeStream.outputMode("append").format("console").start().awaitTermination()
 
-# query_stock = sdIBM.writeStream.outputMode("append").format("console").start().awaitTermination()
-
-# sdfAAPL = spark \
-#     .readStream \
-#     .format("kafka") \
-#     .option("kafka.bootstrap.servers", "localhost:9092") \
-#     .option("subscribe", "AAPL") \
-#     .option("startingOffsets", "latest") \
-#     .load() \
-#     .selectExpr("CAST(value AS STRING)")
-#
-# sdfAMZN = spark \
-#     .readStream \
-#     .format("kafka") \
-#     .option("kafka.bootstrap.servers", "localhost:9092") \
-#     .option("subscribe", "AMZN") \
-#     .option("startingOffsets", "latest") \
-#     .load() \
-#     .selectExpr("CAST(value AS STRING)")
-#
-# sdfTSLA = spark \
-#     .readStream \
-#     .format("kafka") \
-#     .option("kafka.bootstrap.servers", "localhost:9092") \
-#     .option("subscribe", "TSLA") \
-#     .option("startingOffsets", "latest") \
-#     .load() \
-#     .selectExpr("CAST(value AS STRING)")
-#
-# sdfBABA = spark \
-#     .readStream \
-#     .format("kafka") \
-#     .option("kafka.bootstrap.servers", "localhost:9092") \
-#     .option("subscribe", "BABA") \
-#     .option("startingOffsets", "latest") \
-#     .load() \
-#     .selectExpr("CAST(value AS STRING)")
+query_stock = sdIBM.writeStream.outputMode("append").format("console").start().awaitTermination()

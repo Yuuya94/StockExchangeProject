@@ -14,7 +14,7 @@ api_keys = ['TJ1BIZPW8CW92HPV', '719F2LKYBXADC9JS', 'CJDRP98HYVLSQ2WN', 'KQ95378
             'N127QDY29MMRV8Y2', 'OWO2UGRNDJU4O723', 'O6038C7684U34G04', 'XHHKK0VSMLTK0Z7M', 'FKZ8Y0Q50DVE8FGQ']
 
 symbol_stocks = ['IBM', 'AAPL', 'AMZN', 'TSLA', 'BABA']
-currencies = [('USD', 'RUB'), ('USD', 'EUR'), ('USD', 'CNY')]
+currencies = [('USD', 'RUB'), ('USD', 'EUR')]
 
 producer = KafkaProducer(bootstrap_servers=['localhost:9092'], value_serializer=lambda x: dumps(x).encode('utf-8'))
 
@@ -52,7 +52,7 @@ class TimeSeriesIntraday(threading.Thread):
                         producer.send(stock, value=clean_data)
                         producer.flush()
                         logging.info(stock + ' stocks successfully sent to Kafka Broker')
-                        time.sleep(0.5)
+                        # time.sleep(0.5)
                     self.last_time_refreshed_stocks[stock] = data['Meta Data']['3. Last Refreshed']
                 else:
                     logging.warning('No data were found (either the api key is over used, either there is no data '
