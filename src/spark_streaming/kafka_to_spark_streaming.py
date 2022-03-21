@@ -81,4 +81,4 @@ sdIBM = parse_stocks_data_from_kafka_message(sdIBM, StockSchema)
 
 # query_currency = sdUSDtoRUB.writeStream.outputMode("append").format("console").start().awaitTermination()
 
-# query_stock = sdIBM.writeStream.outputMode("append").format("console").start().awaitTermination()
+query_stock = sdIBM.writeStream.outputMode("append").format("console").start().awaitTermination()
