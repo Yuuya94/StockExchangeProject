@@ -56,15 +56,15 @@ def parse_stocks_data_from_kafka_message(sdf, schema):
 
 
 spark = SparkSession.builder.appName("Spark Structured Streaming from Kafka").getOrCreate()
-
-sdUSDtoRUB = spark \
-    .readStream \
-    .format("kafka") \
-    .option("kafka.bootstrap.servers", "localhost:9092") \
-    .option("subscribe", "USD_and_RUB,USD_and_EUR") \
-    .option("startingOffsets", "earliest") \
-    .load() \
-    .selectExpr("CAST(value AS STRING)")
+#
+# sdUSDtoRUB = spark \
+#     .readStream \
+#     .format("kafka") \
+#     .option("kafka.bootstrap.servers", "localhost:9092") \
+#     .option("subscribe", "USD_and_RUB,USD_and_EUR") \
+#     .option("startingOffsets", "earliest") \
+#     .load() \
+#     .selectExpr("CAST(value AS STRING)")
 
 sdIBM = spark \
     .readStream \
@@ -75,10 +75,10 @@ sdIBM = spark \
     .load() \
     .selectExpr("CAST(topic AS STRING)", "CAST(value AS STRING)")
 
-sdUSDtoRUB = parse_currency_data_from_kafka_message(sdUSDtoRUB, CurrencyRateSchema)
+# sdUSDtoRUB = parse_currency_data_from_kafka_message(sdUSDtoRUB, CurrencyRateSchema)
 
 sdIBM = parse_stocks_data_from_kafka_message(sdIBM, StockSchema)
 
 # query_currency = sdUSDtoRUB.writeStream.outputMode("append").format("console").start().awaitTermination()
 
-query_stock = sdIBM.writeStream.outputMode("append").format("console").start().awaitTermination()
+# query_stock = sdIBM.writeStream.outputMode("append").format("console").start().awaitTermination()
