@@ -87,14 +87,16 @@ class CurrencyExchangeRate(threading.Thread):
                     logging.info(currency1 + ' and ' + currency2 +
                                  ' Currency Exchange Rate successfully sent to Kafka Broker')
                 else:
-                    logging.error('Error : the api key is over used')
+                    logging.warning('No data were found (either the api key is over used, either there is no data '
+                                    'or there is no new data)')
                 self.index_api_keys = (self.index_api_keys + 1) % len(api_keys)
-            # Wait every 5 minutes
-            time.sleep(1 * 60)
+                logging.info(str(self.index_api_keys) + ' used')
+            # Wait every 3 minutes
+            time.sleep(3*60)
 
 
-# currencyExchangeRate = CurrencyExchangeRate()
-# currencyExchangeRate.start()
+currencyExchangeRate = CurrencyExchangeRate()
+currencyExchangeRate.start()
 
-timeSeriesIntraday = TimeSeriesIntraday()
-timeSeriesIntraday.start()
+#timeSeriesIntraday = TimeSeriesIntraday()
+#timeSeriesIntraday.start()

@@ -10,6 +10,8 @@ session = cluster.connect()
 session.execute("DROP KEYSPACE IF EXISTS stock_exchange")
 session.execute("DROP TABLE IF EXISTS stock_exchange.stocks")
 session.execute("DROP TABLE IF EXISTS stock_exchange.currencies")
+session.execute("DROP TABLE IF EXISTS stock_exchange.currencies")
+session.execute("DROP TABLE IF EXISTS stock_exchange.currencies_stats")
 
 # Create Keyspace
 session.execute(
@@ -32,4 +34,15 @@ create table stock_exchange.currencies (
  time timestamp,
  exchange_rate float,
  primary key(from_currency, to_currency, time)
+);''')
+
+session.execute('''
+create table stock_exchange.currencies_stats (
+ range_time varchar,
+ from_currency varchar,
+ to_currency varchar,
+ max_exchange_rate float,
+ min_exchange_rate float,
+ change float,
+ primary key(from_currency, to_currency, range_time)
 );''')
