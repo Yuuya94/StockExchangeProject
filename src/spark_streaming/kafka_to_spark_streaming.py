@@ -1,12 +1,11 @@
 """
 Still working on it
 """
-import logging
 
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import from_json
 from pyspark.sql.types import StructType, StructField, StringType, TimestampType, MapType, FloatType, \
     IntegerType
-from pyspark.sql.functions import split, from_json, regexp_extract, regexp_replace
 
 StockSchema = StructType([StructField("Volume", IntegerType()),
                           StructField("Value", FloatType()),
@@ -52,10 +51,14 @@ def parse_stocks_data_from_kafka_message(sdf, schema):
     for idx, field in enumerate(schema):  # now expand col to multiple top-level columns
         sdf = sdf.withColumn(field.name, sdf['valueJSON'].getItem(field.name).cast(field.dataType))
     sdf = sdf.withColumn('Stock', sdf['topic']).drop('topic').drop('valueJSON')
+    sdf = sdf.withColumnRenamed('Stock', 'symbol')
+    sdf = sdf.withColumnRenamed('Timestamp', 'time')
+    sdf = sdf.withColumnRenamed('Volume', 'volume')
+    sdf = sdf.withColumnRenamed('Value', 'value')
     return sdf
 
 
-spark = SparkSession.builder.appName("Spark Structured Streaming from Kafka").getOrCreate()
+spark = SparkSession.builder.appName("Spark Structured Streaming from Kafka").config("spark.cassandra.auth.username", "cassandra").config("spark.cassandra.auth.password", "cassandra").getOrCreate()
 
 sdUSDtoRUB = spark \
     .readStream \
@@ -79,6 +82,28 @@ sdUSDtoRUB = parse_currency_data_from_kafka_message(sdUSDtoRUB, CurrencyRateSche
 
 sdIBM = parse_stocks_data_from_kafka_message(sdIBM, StockSchema)
 
+
 # query_currency = sdUSDtoRUB.writeStream.outputMode("append").format("console").start().awaitTermination()
 
-query_stock = sdIBM.writeStream.outputMode("append").format("console").start().awaitTermination()
+# query_stock = sdIBM.writeStream.outputMode("append").format("console").start().awaitTermination()
+
+
+# query = sdIBM.writeStream\
+#  .option("checkpointLocation", '/tmp/check_point/')\
+#  .format("org.apache.spark.sql.cassandra")\
+#  .option("keyspace", "stock_exchange")\
+#  .option("table", "stocks")\
+#  .start().awaitTermination()
+
+
+def func(df, batchId):
+    df.write.cassandraFormat("stock_exchange", "stocks").mode("append").save()
+
+
+query = sdIBM.writeStream \
+    .option("checkpointLocation", '/tmp/check_point/') \
+    .format("org.apache.spark.sql.cassandra") \
+    .option("keyspace", "stock_exchange") \
+    .option("table", "stocks") \
+    .start().awaitTermination()
+# query = sdIBM.writeStream.foreachBatch(func).outputMode("update").start().awaitTermination()
