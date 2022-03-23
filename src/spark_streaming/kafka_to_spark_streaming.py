@@ -94,8 +94,9 @@ def foreach_cassandra_currencies_stats(df):
     cluster = Cluster(["127.0.0.1"], auth_provider=auth_provider)  # Eventually modify
     session = cluster.connect("stock_exchange")
     session.execute(
-        """INSERT INTO currencies (range_time, from_currency, to_currency, max_exchange_rate, min_exchange_rate, change) VALUES (%s, %s, %s, %s, %s, %s)""",
-        (df.range_time, df.from_currency, df.to_currency, df.max_exchange_rate, df.min_exchange_rate, df.change))
+        """INSERT INTO currencies_stats (from_currency, to_currency, start_time, end_time, change, max_exchange_rate, min_exchange_rate) VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+        (df.from_currency, df.to_currency, df.range_time.start, df.range_time.end, df.change, df.max_exchange_rate,
+         df.min_exchange_rate))
 
 
 windowCurrencyStats = sdCurrencies.withWatermark("time", "15 minutes"). \
@@ -112,14 +113,14 @@ windowCurrencyStats = windowCurrencyStats.withColumn("change",
 windowCurrencyStats = windowCurrencyStats.withColumnRenamed("window", "range_time")
 windowCurrencyStats = windowCurrencyStats.drop('first_exchange_rate').drop('last_exchange_rate')
 
-# debug queryWindow = windowCurrencyStats.writeStream.outputMode('append').format('console').option('truncate', \
-# 'false').start()
+# debug
+# queryWindow = windowCurrencyStats.writeStream.outputMode('append').format('console').option('truncate', 'false').start()
 # queryWindow.awaitTermination()
 
 
 cassandra_query_currencies = sdCurrencies.writeStream.foreach(foreach_cassandra_currencies).start()
 cassandra_query_stocks = sdStocks.writeStream.foreach(foreach_cassandra_stocks).start()
-cassandra_query_currencies_stats = sdCurrencies.writeStream.foreach(foreach_cassandra_currencies_stats).start()
-cassandra_query_stocks.awaitTermination()
+cassandra_query_currencies_stats = windowCurrencyStats.writeStream.foreach(foreach_cassandra_currencies_stats).start()
 cassandra_query_currencies.awaitTermination()
+cassandra_query_stocks.awaitTermination()
 cassandra_query_currencies_stats.awaitTermination()

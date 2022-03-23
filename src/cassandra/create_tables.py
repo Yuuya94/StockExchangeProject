@@ -38,11 +38,12 @@ create table stock_exchange.currencies (
 
 session.execute('''
 create table stock_exchange.currencies_stats (
- range_time varchar,
+ start_time timestamp,
+ end_time timestamp,
  from_currency varchar,
  to_currency varchar,
  max_exchange_rate float,
  min_exchange_rate float,
  change float,
- primary key(from_currency, to_currency, range_time)
+ primary key(from_currency, to_currency, start_time, end_time)
 );''')

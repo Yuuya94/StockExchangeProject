@@ -22,7 +22,7 @@ producer = KafkaProducer(bootstrap_servers=['localhost:9092'], value_serializer=
 class TimeSeriesIntraday(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
-        self.index_api_keys = 1
+        self.index_api_keys = 0
         self.last_time_refreshed_stocks = {}
         for stock in symbol_stocks:
             self.last_time_refreshed_stocks[stock] = ""
@@ -52,20 +52,22 @@ class TimeSeriesIntraday(threading.Thread):
                         producer.send(stock, value=clean_data)
                         producer.flush()
                         logging.info(stock + ' stocks successfully sent to Kafka Broker')
-                        # time.sleep(0.5)
                     self.last_time_refreshed_stocks[stock] = data['Meta Data']['3. Last Refreshed']
                 else:
-                    logging.warning('No data were found (either the api key is over used, either there is no data '
-                                    'or there is no new data)')
+                    logging.warning(str(self.index_api_keys) + ' index key being used')
+                    logging.warning(
+                        'TimeSeriesIntraday : No data were found (either the api key is over used, either there is no data '
+                        'or there is no new data)')
+                time.sleep(30)
                 self.index_api_keys = (self.index_api_keys + 1) % len(api_keys)
             # Wait every hour
-            time.sleep(60*60)
+            time.sleep(60 * 60 * 3)
 
 
 class CurrencyExchangeRate(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
-        self.index_api_keys = 3
+        self.index_api_keys = 5
 
     def run(self):
         while True:
@@ -87,16 +89,17 @@ class CurrencyExchangeRate(threading.Thread):
                     logging.info(currency1 + ' and ' + currency2 +
                                  ' Currency Exchange Rate successfully sent to Kafka Broker')
                 else:
-                    logging.warning('No data were found (either the api key is over used, either there is no data '
-                                    'or there is no new data)')
+                    logging.warning(str(self.index_api_keys) + ' index key being used')
+                    logging.warning(
+                        'CurrencyExchangeRate : No data were found (either the api key is over used, either there is no data '
+                        'or there is no new data)')
                 self.index_api_keys = (self.index_api_keys + 1) % len(api_keys)
-                logging.info(str(self.index_api_keys) + ' used')
             # Wait every 3 minutes
-            time.sleep(3*60)
+            time.sleep(3 * 60)
 
 
 currencyExchangeRate = CurrencyExchangeRate()
 currencyExchangeRate.start()
 
-#timeSeriesIntraday = TimeSeriesIntraday()
-#timeSeriesIntraday.start()
+timeSeriesIntraday = TimeSeriesIntraday()
+timeSeriesIntraday.start()
