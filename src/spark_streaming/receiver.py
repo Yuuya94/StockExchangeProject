@@ -1,6 +1,6 @@
 from pyspark import SparkContext
 from pyspark.streaming import StreamingContext
-from kafka_to_spark_streaming import sdfIBM
+from kafka_to_spark_streaming import sdStocks
 
 def receive():
 
@@ -9,7 +9,7 @@ def receive():
     ssc=StreamingContext(sc, 2)
 
     ssc.awaitTermination(timeout=5)
-    lines = ssc.queueStream(sdfIBM)
+    lines = ssc.queueStream(sdStocks)
     print(lines)
 
     ssc.start()             # Start the computation
