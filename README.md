@@ -7,7 +7,8 @@ Made by : Thierry JIAO and Xinyan DU
 
 ## Description
 
-An in-depth paragraph about your project and overview of use.
+Our project is about the study of StockExchange through a Big Data Architecture.
+The goal is to process financial stocks through Lambda Architecture (batch and real-time).
 
 ## Getting Started
 
@@ -15,6 +16,8 @@ An in-depth paragraph about your project and overview of use.
 
 * Python
 * Docker & docker-compose
+* Spark
+* Hadoop
 
 ### Installing
 
@@ -37,69 +40,43 @@ You can check the status of the containers :
 $ sudo docker ps
 ```
 
-More info :
-
-You can configure the number of spark workers adding parameter :
-
-```bash
-$ sudo docker-compose up --scale spark-worker=3 -d
-```
-
 You can also verify that cassandra is running :
 
 ```bash
 $ cqlsh localhost -u cassandra -p cassandra
 ```
 
-### Executing program
 
-spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.1 --master spark://127.0.0.1:7077 kafka_to_spark_streaming.py
+Then, run spark master and one spark worker. 
 
-* How to run the program
-* Step-by-step bullets
-```
-code blocks for commands
-```
+## Executing program
 
-### Check logs
-
-Check container logs :
+Run the "create_topics.py" script :
 
 ```bash
-sudo docker logs [container_name]
+$ python ./src/kafka/create_topics.py
 ```
 
-## Help
+Then, run the "create_tables.py" script :
 
-Any advise for common problems or issues.
+```bash
+$ python ./src/cassandra/create_tables.py
 ```
-command to run if program contains helper info
+
+After that, run the following command :
+
+```bash
+$ spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.1 --master spark://[spark_master_address]:7077 ./src/spark_streaming/kafka_to_spark_streaming.py
 ```
 
-## Authors
+At this moment, the spark streaming script will be submitted to Spark master.
 
-Contributors names and contact info
+Now we have to feed the Kafka Broker.
 
-ex. Dominique Pizzie  
-ex. [@DomPizzie](https://twitter.com/dompizzie)
+Run this :
 
-## Version History
+```bash
+$ python ./src/kafka/input_kafka_producer.py
+```
 
-* 0.2
-    * Various bug fixes and optimizations
-    * See [commit change]() or See [release history]()
-* 0.1
-    * Initial Release
-
-## License
-
-This project is licensed under the [NAME HERE] License - see the LICENSE.md file for details
-
-## Acknowledgments
-
-Inspiration, code snippets, etc.
-* [awesome-readme](https://github.com/matiassingers/awesome-readme)
-* [PurpleBooth](https://gist.github.com/PurpleBooth/109311bb0361f32d87a2)
-* [dbader](https://github.com/dbader/readme-template)
-* [zenorocha](https://gist.github.com/zenorocha/4526327)
-* [fvcproductions](https://gist.github.com/fvcproductions/1bfc2d4aecb01a834b46)
+As a result, data will be sent to Kafka and Spark Streaming will decode, clean and insert it to Cassandra.
