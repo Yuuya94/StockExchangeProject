@@ -5,7 +5,8 @@ import urllib.request
 import logging
 from json import dumps
 
-from kafka import KafkaProducer
+from kafka import KafkaProducer, KafkaAdminClient, KafkaConsumer
+from kafka.admin import NewTopic
 
 logging.getLogger().setLevel(logging.INFO)
 
@@ -17,6 +18,10 @@ symbol_stocks = ['IBM', 'AAPL', 'AMZN', 'TSLA', 'BABA']
 currencies = [('USD', 'RUB'), ('USD', 'EUR')]
 
 producer = KafkaProducer(bootstrap_servers=['localhost:9092'], value_serializer=lambda x: dumps(x).encode('utf-8'))
+
+admin_client = KafkaAdminClient(bootstrap_servers="localhost:9092", client_id='admin')
+
+consumer = KafkaConsumer(group_id='consumer', bootstrap_servers=['localhost:9092'])
 
 
 class TimeSeriesIntraday(threading.Thread):
@@ -97,6 +102,23 @@ class CurrencyExchangeRate(threading.Thread):
             # Wait every 3 minutes
             time.sleep(3 * 60)
 
+
+# Delete topics
+admin_client.delete_topics(list(consumer.topics()))
+time.sleep(2)
+
+# Create topics
+
+topic_list = []
+for stock in symbol_stocks:
+    topic_list.append(NewTopic(name=stock, num_partitions=1, replication_factor=1
+                               , topic_configs={'retention.ms': '86400000'}))
+for (currency1, currency2) in currencies:
+    topic_list.append(NewTopic(name=currency1 + "_and_" + currency2, num_partitions=1, replication_factor=1
+                               , topic_configs={'retention.ms': '86400000'}))
+admin_client.create_topics(new_topics=topic_list, validate_only=False)
+
+# Run the threads
 
 currencyExchangeRate = CurrencyExchangeRate()
 currencyExchangeRate.start()
