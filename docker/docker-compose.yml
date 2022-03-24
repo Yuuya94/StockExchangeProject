@@ -22,39 +22,17 @@ services:
       - ALLOW_PLAINTEXT_LISTENER=yes
     depends_on:
       - zookeeper
-#  spark:
-#    image: docker.io/bitnami/spark:3
-#    ports:
-#      - '8080:8080'
-#      - '7077:7077'
-#    environment:
-#      - SPARK_MODE=master
-#      - SPARK_RPC_AUTHENTICATION_ENABLED=no
-#      - SPARK_RPC_ENCRYPTION_ENABLED=no
-#      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
-#      - SPARK_SSL_ENABLED=no
-#  spark-worker:
-#    image: docker.io/bitnami/spark:3
-#    environment:
-#      - SPARK_MODE=worker
-#      - SPARK_MASTER_URL=spark://spark:7077
-#      - SPARK_WORKER_MEMORY=1G
-#      - SPARK_WORKER_CORES=1
-#      - SPARK_RPC_AUTHENTICATION_ENABLED=no
-#      - SPARK_RPC_ENCRYPTION_ENABLED=no
-#      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
-#      - SPARK_SSL_ENABLED=no
-#  cassandra:
-#    image: docker.io/bitnami/cassandra:4.0
-#    ports:
-#      - '7001:7001'
-#      - '9042:9042'
-#    volumes:
-#      - 'cassandra_data:/bitnami'
-#    environment:
-#      - CASSANDRA_SEEDS=cassandra
-#      - CASSANDRA_PASSWORD_SEEDER=yes
-#      - CASSANDRA_PASSWORD=cassandra
+  cassandra:
+    image: docker.io/bitnami/cassandra:4.0
+    ports:
+      - '7001:7001'
+      - '9042:9042'
+    volumes:
+      - 'cassandra_data:/bitnami'
+    environment:
+      - CASSANDRA_SEEDS=cassandra
+      - CASSANDRA_PASSWORD_SEEDER=yes
+      - CASSANDRA_PASSWORD=cassandra
 
 volumes:
   zookeeper_data:
